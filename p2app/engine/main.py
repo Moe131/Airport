@@ -20,6 +20,7 @@ class Engine:
 
     def __init__(self):
         """Initializes the engine"""
+        self._database = None
         pass
 
 
@@ -33,11 +34,13 @@ class Engine:
             yield EndApplicationEvent()
 
         if isinstance(event, OpenDatabaseEvent):
-            database = Database(event.path())
-            database.open()
-            if database.check_open():
+            self._database = Database(event.path())
+            self._database.open()
+            if self._database.check_open():
                 yield DatabaseOpenedEvent(event.path())
             else:
                 yield DatabaseOpenFailedEvent("Wrong file was opened. Please try again")
-            database.close()
 
+        if isinstance(event, CloseDatabaseEvent):
+            self._database.close()
+            yield DatabaseClosedEvent()
