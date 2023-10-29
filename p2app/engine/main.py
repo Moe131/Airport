@@ -9,6 +9,7 @@
 # which means that YOU WILL DEFINITELY NEED TO MAKE CHANGES TO THIS FILE.
 
 from p2app.events import *
+import sqlite3
 
 class Engine:
     """An object that represents the application's engine, whose main role is to
@@ -29,5 +30,23 @@ class Engine:
         # This is a way to write a generator function that always yields zero values.
         # You'll want to remove this and replace it with your own code, once you start
         # writing your engine, but this at least allows the program to run.
-        if isinstance(event, QuitInitiatedEvent) :
+        if isinstance(event, QuitInitiatedEvent):
             yield EndApplicationEvent()
+
+        if isinstance(event, OpenDatabaseEvent):
+            if self.database_opened_success(event.path()):
+                yield DatabaseOpenedEvent(event.path())
+            else:
+                yield DatabaseOpenFailedEvent("Wrong file")
+
+    @staticmethod
+    def database_opened_success(path):
+        connection = sqlite3.connect(str(path))
+        cursor = connection.execute('SELECT name FROM sqlite_schema;')
+        if cursor.fetchone() == ('continent',) :
+            connection.close()
+            return True
+        else :
+            connection.close()
+            return False
+
