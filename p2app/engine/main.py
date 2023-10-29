@@ -44,3 +44,9 @@ class Engine:
         if isinstance(event, CloseDatabaseEvent):
             self._database.close()
             yield DatabaseClosedEvent()
+
+        if isinstance(event, StartContinentSearchEvent):
+            continent_code = event.continent_code()
+            name = event.name()
+            for continent in self._database.search_continents(name,continent_code):
+                yield ContinentSearchResultEvent(continent)
