@@ -33,21 +33,43 @@ class Database:
     def search_continents(self , name: str, continent_code: int):
         """Searches database for continents and generates results as Continent named tuples"""
         cursor = self._connection.execute("""
-        SELECT continent_id, continent_code, name 
-        FROM continent
-        WHERE continent_code = ? AND name = ? ;
-        """,(continent_code, name) )
-        yield Continent(*cursor.fetchone())
+            SELECT continent_id, continent_code, name 
+            FROM continent
+            WHERE continent_code = ? AND name = ? ;
+            """,(continent_code, name) )
+        continent = cursor.fetchone()
+        if continent is not None:
+            yield Continent(*continent)
 
 
     def search_continent_by_id(self, continent_id:int) -> Continent:
         """Searches database for a continent by its ID and returns it"""
         cursor = self._connection.execute("""
-        SELECT continent_id, continent_code, name 
-        FROM continent
-        WHERE continent_id = ? ;
-        """, (continent_id,) )
+            SELECT continent_id, continent_code, name 
+            FROM continent
+            WHERE continent_id = ? ;
+            """, (continent_id,) )
         return Continent(*cursor.fetchone())
 
 
+    def save_new_continent(self, continent:Continent) -> None:
+        """Inserts a new continent into the database"""
+        cursor = self._connection.execute("""
+            INSERT INTO continent (continent_id, continent_code, name)
+            VALUES (?,?,?); 
+            """, continent)
+
+
+    def check_continent_exists(self, continent: Continent) -> bool:
+        """Searches database for a continent and returns true if found"""
+        cursor = self._connection.execute("""
+            SELECT continent_id, continent_code, name 
+            FROM continent
+            WHERE continent_id = ? AND continent_code = ? AND name = ? ;
+            """, continent)
+
+        if cursor.fetchone() is None:
+            return False
+        else:
+            return True
 

@@ -48,10 +48,20 @@ class Engine:
         if isinstance(event, StartContinentSearchEvent):
             continent_code = event.continent_code()
             name = event.name()
-            for continent in self._database.search_continents(name,continent_code):
-                yield ContinentSearchResultEvent(continent)
+            generated_continents = self._database.search_continents(name,continent_code)
+            if generated_continents is not None:
+                for continent in generated_continents:
+                    yield ContinentSearchResultEvent(continent)
 
         if isinstance(event, LoadContinentEvent):
             continent_id = event.continent_id()
             continent = self._database.search_continent_by_id(continent_id)
             yield ContinentLoadedEvent(continent)
+
+        if isinstance(event,SaveNewContinentEvent):
+            continent = event.continent()
+            self._database.save_new_continent(continent)
+            if self._database.check_continent_exists(continent):
+                yield ContinentSavedEvent(continent)
+            else:
+                yield SaveContinentFailedEvent("Problem")
