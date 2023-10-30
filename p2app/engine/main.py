@@ -50,3 +50,8 @@ class Engine:
             name = event.name()
             for continent in self._database.search_continents(name,continent_code):
                 yield ContinentSearchResultEvent(continent)
+
+        if isinstance(event, LoadContinentEvent):
+            continent_id = event.continent_id()
+            continent = self._database.search_continent_by_id(continent_id)
+            yield ContinentLoadedEvent(continent)

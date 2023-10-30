@@ -37,11 +37,17 @@ class Database:
         FROM continent
         WHERE continent_code = ? AND name = ? ;
         """,(continent_code, name) )
-
         yield Continent(*cursor.fetchone())
 
 
-
+    def search_continent_by_id(self, continent_id:int) -> Continent:
+        """Searches database for a continent by its ID and returns it"""
+        cursor = self._connection.execute("""
+        SELECT continent_id, continent_code, name 
+        FROM continent
+        WHERE continent_id = ? ;
+        """, (continent_id,) )
+        return Continent(*cursor.fetchone())
 
 
 
