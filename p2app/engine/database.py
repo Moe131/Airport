@@ -30,7 +30,7 @@ class Database:
             return False
 
 
-    def search_continents(self , name: str, continent_code: int):
+    def search_continent(self , continent_code: int, name: str) -> Continent:
         """Searches database for continents and generates results as Continent named tuples"""
         cursor = self._connection.execute("""
             SELECT continent_id, continent_code, name 
@@ -39,7 +39,7 @@ class Database:
             """,(continent_code, name) )
         continent = cursor.fetchone()
         if continent is not None:
-            yield Continent(*continent)
+            return Continent(*continent)
 
 
     def search_continent_by_id(self, continent_id:int) -> Continent:
@@ -54,22 +54,10 @@ class Database:
 
     def save_new_continent(self, continent:Continent) -> None:
         """Inserts a new continent into the database"""
+        continent_id, continent_code, name = continent
         cursor = self._connection.execute("""
-            INSERT INTO continent (continent_id, continent_code, name)
-            VALUES (?,?,?); 
-            """, continent)
+            INSERT INTO continent (continent_code, name)
+            VALUES (?,?); 
+            """, (continent_code, name))
 
-
-    def check_continent_exists(self, continent: Continent) -> bool:
-        """Searches database for a continent and returns true if found"""
-        cursor = self._connection.execute("""
-            SELECT continent_id, continent_code, name 
-            FROM continent
-            WHERE continent_id = ? AND continent_code = ? AND name = ? ;
-            """, continent)
-
-        if cursor.fetchone() is None:
-            return False
-        else:
-            return True
 
