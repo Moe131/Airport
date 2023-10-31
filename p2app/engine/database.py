@@ -57,12 +57,22 @@ class Database:
         return Continent(*cursor.fetchone())
 
 
-    def save_new_continent(self, continent:Continent) -> None:
-        """Inserts a new continent into the database"""
+    def save_new_continent(self, continent:Continent) :
+        """Inserts a new continent into the database and
+         returns the error message if failed"""
         continent_id, continent_code, name = continent
-        cursor = self._connection.execute("""
-            INSERT INTO continent (continent_code, name)
-            VALUES (?,?); 
-            """, (continent_code, name))
-
+        if continent_code.isspace() or  continent_code == "" or name.isspace() or name == "":
+            return "Continent Code or Name can not be empty."
+        try:
+            cursor = self._connection.execute("""
+                INSERT INTO continent (continent_code, name)
+                VALUES (?,?); 
+                """, (continent_code, name))
+        except Exception as e:
+            error = e.__str__()
+            if "UNIQUE constraint" in error:
+                return "Continent Code already exists."
+            else :
+                return error
+        #self._connection.commit()
 
