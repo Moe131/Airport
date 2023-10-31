@@ -65,4 +65,12 @@ class Engine:
                 continent = next(self._database.search_continent(continent_code, name))
                 yield ContinentSavedEvent(continent)
             else:
-                yield SaveContinentFailedEvent("Save New Continent Failed.\n" + error)
+               yield SaveContinentFailedEvent("Save New Continent Failed.\n" + error)
+
+        if isinstance(event, SaveContinentEvent):
+            continent_id, continent_code, name = event.continent()
+            error = self._database.update_continent(continent_id, continent_code, name )
+            if error is None:
+                yield ContinentSavedEvent(event.continent())
+            else:
+                yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)

@@ -91,3 +91,20 @@ class Database:
                 return error
         #self._connection.commit()
 
+    def update_continent(self, continent_id:int, new_continent_code:int, new_name: str):
+        """Updates an existing continent in database with new continent code and name
+        and returns error string if an error occurred."""
+        if new_continent_code.isspace() or  new_continent_code == "" or new_name.isspace() or new_name == "":
+            return "Continent Code or Name can not be empty."
+        try:
+            cursor = self._connection.execute("""
+                UPDATE continent
+                SET continent_code = ? , name = ?
+                WHERE continent_id = ?;
+                """, (new_continent_code, new_name, continent_id))
+        except Exception as e:
+            error = e.__str__()
+            if "UNIQUE constraint" in error:
+                return "Continent Code already exists."
+            else:
+                return error
