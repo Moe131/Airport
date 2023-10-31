@@ -40,19 +40,19 @@ class Database:
         """Searches database for continents and generates results as Continent named tuples"""
         if continent_code is None :
             cursor = self._connection.execute("""
-                SELECT continent_id, continent_code, name 
+                SELECT * 
                 FROM continent
                 WHERE name = ? ;
                 """,(name,))
         elif name is None:
             cursor = self._connection.execute("""
-                SELECT continent_id, continent_code, name 
+                SELECT *
                 FROM continent
                 WHERE continent_code = ? ;
                 """,(continent_code,) )
         else:
             cursor = self._connection.execute("""
-                SELECT continent_id, continent_code, name 
+                SELECT *
                 FROM continent
                 WHERE continent_code = ? AND name = ? ;
                 """,(continent_code, name) )
@@ -66,7 +66,7 @@ class Database:
     def search_continent_by_id(self, continent_id:int) -> Continent:
         """Searches database for a continent by its ID and returns it"""
         cursor = self._connection.execute("""
-            SELECT continent_id, continent_code, name 
+            SELECT *
             FROM continent
             WHERE continent_id = ? ;
             """, (continent_id,) )
@@ -116,19 +116,19 @@ class Database:
         """Searches database for countries and generates results as country named tuples"""
         if country_code is None:
             cursor = self._connection.execute("""
-                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                SELECT *
                 FROM country
                 WHERE name = ? ;
             """, (name,))
         elif name is None:
             cursor = self._connection.execute("""
-                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                SELECT *
                 FROM country
                 WHERE country_code = ? ;
             """, (country_code,))
         else:
             cursor = self._connection.execute("""
-                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                SELECT *
                 FROM country
                 WHERE country_code = ? AND name = ? ;
             """, (country_code,name))
@@ -137,3 +137,13 @@ class Database:
         if countries is not None:
             for country in countries:
                 yield Country(*country)
+
+
+    def search_country_by_id(self, country_id:int) -> Country:
+        """Searches database for a country by its ID and returns it"""
+        cursor = self._connection.execute("""
+            SELECT *
+            FROM country
+            WHERE country_id = ? ;
+            """, (country_id,) )
+        return Country(*cursor.fetchone())

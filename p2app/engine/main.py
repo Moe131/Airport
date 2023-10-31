@@ -54,8 +54,7 @@ class Engine:
                     yield ContinentSearchResultEvent(continent)
 
         if isinstance(event, LoadContinentEvent):
-            continent_id = event.continent_id()
-            continent = self._database.search_continent_by_id(continent_id)
+            continent = self._database.search_continent_by_id(event.continent_id())
             yield ContinentLoadedEvent(continent)
 
         if isinstance(event,SaveNewContinentEvent):
@@ -82,3 +81,7 @@ class Engine:
             if searched_countries is not None:
                 for country in searched_countries:
                     yield CountrySearchResultEvent(country)
+
+        if isinstance(event, LoadCountryEvent):
+            country = self._database.search_country_by_id(event.country_id())
+            yield CountryLoadedEvent(country)
