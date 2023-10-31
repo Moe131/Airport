@@ -1,5 +1,6 @@
 import sqlite3
-from p2app.events import Continent
+from p2app.events import Continent, Country
+
 
 class Database:
     """Represents the database of our application and allows us
@@ -91,6 +92,7 @@ class Database:
                 return error
         #self._connection.commit()
 
+
     def update_continent(self, continent_id:int, new_continent_code:int, new_name: str):
         """Updates an existing continent in database with new continent code and name
         and returns error string if an error occurred."""
@@ -108,3 +110,30 @@ class Database:
                 return "Continent Code already exists."
             else:
                 return error
+
+
+    def search_country(self, country_code:int, name:str):
+        """Searches database for countries and generates results as country named tuples"""
+        if country_code is None:
+            cursor = self._connection.execute("""
+                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                FROM country
+                WHERE name = ? ;
+            """, (name,))
+        elif name is None:
+            cursor = self._connection.execute("""
+                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                FROM country
+                WHERE country_code = ? ;
+            """, (country_code,))
+        else:
+            cursor = self._connection.execute("""
+                SELECT country_id, country_code, name, continent_id, wikipedia_link, keywords
+                FROM country
+                WHERE country_code = ? AND name = ? ;
+            """, (country_code,name))
+
+        countries = cursor.fetchall()
+        if countries is not None:
+            for country in countries:
+                yield Country(*country)

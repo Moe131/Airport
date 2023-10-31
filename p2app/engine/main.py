@@ -74,3 +74,11 @@ class Engine:
                 yield ContinentSavedEvent(event.continent())
             else:
                 yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
+
+        if isinstance(event, StartCountrySearchEvent):
+            country_code = event.country_code()
+            name = event.name()
+            searched_countries = self._database.search_country(country_code,name)
+            if searched_countries is not None:
+                for country in searched_countries:
+                    yield CountrySearchResultEvent(country)
