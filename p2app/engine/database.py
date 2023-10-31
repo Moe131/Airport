@@ -76,14 +76,15 @@ class Database:
     def save_new_continent(self, continent:Continent) :
         """Inserts a new continent into the database and
          returns the error message if failed"""
-        continent_id, continent_code, name = continent
-        if continent_code.isspace() or  continent_code == "" or name.isspace() or name == "":
-            return "Continent Code or Name can not be empty."
+        if continent.continent_code.isspace() or  continent.continent_code == "":
+            return "Continent Code can not be empty."
+        if continent.name.isspace() or continent.name == "":
+            return "Name can not be empty."
         try:
             cursor = self._connection.execute("""
                 INSERT INTO continent (continent_code, name)
                 VALUES (?,?); 
-                """, (continent_code, name))
+                """, (continent.continent_code, continent.name))
         except Exception as e:
             error = e.__str__()
             if "UNIQUE constraint" in error:
@@ -97,7 +98,9 @@ class Database:
         """Updates an existing continent in database with new continent code and name
         and returns error string if an error occurred."""
         if new_continent_code.isspace() or  new_continent_code == "" or new_name.isspace() or new_name == "":
-            return "Continent Code or Name can not be empty."
+            return "Continent Code can not be empty."
+        if new_name.isspace() or new_name == "":
+            return "Name can not be empty."
         try:
             cursor = self._connection.execute("""
                 UPDATE continent
@@ -147,3 +150,25 @@ class Database:
             WHERE country_id = ? ;
             """, (country_id,) )
         return Country(*cursor.fetchone())
+
+    def save_new_country(self, country:Country ):
+        """Inserts a new country into the database and
+         returns a error message if failed"""
+        if country.country_code.isspace() or country.country_code == "":
+            return "Country Code can not be empty."
+        if country.name.isspace() or country.name == "":
+            return "Name can not be empty."
+        if country.wikipedia_link is None:
+            return "Wikipedia link can not be empty."
+
+        try :
+            cursor = self._connection.execute("""
+                INSERT INTO country (country_code, name, continent_id, wikipedia_link, keywords)
+                VALUES (?,?,?,?,?)
+            """, (country.country_code, country.name, country.continent_id, country.wikipedia_link, country.keywords))
+        except Exception as e:
+            error = e.__str__()
+            if "UNIQUE constraint" in error:
+                return "Country Code already exists."
+            else:
+                return error

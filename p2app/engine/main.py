@@ -85,3 +85,12 @@ class Engine:
         if isinstance(event, LoadCountryEvent):
             country = self._database.search_country_by_id(event.country_id())
             yield CountryLoadedEvent(country)
+
+        if isinstance(event, SaveNewCountryEvent):
+            country = event.country()
+            error = self._database.save_new_country(country)
+            if error is None:
+                created_country = next(self._database.search_country(country.country_code, country.name))
+                yield CountrySavedEvent(created_country)
+            else:
+                yield SaveCountryFailedEvent("Save New Country Failed.\n" + error)
