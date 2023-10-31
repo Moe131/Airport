@@ -94,19 +94,19 @@ class Database:
         #self._connection.commit()
 
 
-    def update_continent(self, continent_id:int, new_continent_code:int, new_name: str):
+    def update_continent(self, continent: Continent):
         """Updates an existing continent in database with new continent code and name
         and returns error string if an error occurred."""
-        if new_continent_code.isspace() or  new_continent_code == "" or new_name.isspace() or new_name == "":
+        if continent.continent_code.isspace() or  continent.continent_code == "":
             return "Continent Code can not be empty."
-        if new_name.isspace() or new_name == "":
+        if continent.name.isspace() or continent.name == "":
             return "Name can not be empty."
         try:
             cursor = self._connection.execute("""
                 UPDATE continent
                 SET continent_code = ? , name = ?
                 WHERE continent_id = ?;
-                """, (new_continent_code, new_name, continent_id))
+                """, (continent.continent_code, continent.name, continent.continent_id))
         except Exception as e:
             error = e.__str__()
             if "UNIQUE constraint" in error:
