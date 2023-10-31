@@ -94,3 +94,10 @@ class Engine:
                 yield CountrySavedEvent(created_country)
             else:
                 yield SaveCountryFailedEvent("Save New Country Failed.\n" + error)
+
+        if isinstance(event, SaveCountryEvent):
+            error = self._database.update_country(event.country())
+            if error is None:
+                yield CountrySavedEvent(event.country())
+            else:
+                yield SaveCountryFailedEvent("Save Continent Failed.\n"+ error)

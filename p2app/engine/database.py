@@ -160,12 +160,34 @@ class Database:
             return "Name can not be empty."
         if country.wikipedia_link is None:
             return "Wikipedia link can not be empty."
-
         try :
             cursor = self._connection.execute("""
                 INSERT INTO country (country_code, name, continent_id, wikipedia_link, keywords)
                 VALUES (?,?,?,?,?)
             """, (country.country_code, country.name, country.continent_id, country.wikipedia_link, country.keywords))
+        except Exception as e:
+            error = e.__str__()
+            if "UNIQUE constraint" in error:
+                return "Country Code already exists."
+            else:
+                return error
+
+
+    def update_country(self, country:Country):
+        """Updates an existing country in the database with new values"""
+        if country.country_code.isspace() or country.country_code == "":
+            return "Country Code can not be empty."
+        if country.name.isspace() or country.name == "":
+            return "Name can not be empty."
+        if country.wikipedia_link is None:
+            return "Wikipedia link can not be empty."
+        try:
+            cursor = self._connection.execute("""
+                UPDATE country 
+                SET country_code = ?,  name = ? , continent_id = ?, wikipedia_link = ? , keywords = ?
+                WHERE country_id = ? ;
+            """, (country.country_code, country.name, country.continent_id,
+              country.wikipedia_link, country.keywords, country.country_id) )
         except Exception as e:
             error = e.__str__()
             if "UNIQUE constraint" in error:
