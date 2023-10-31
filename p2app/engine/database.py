@@ -37,14 +37,29 @@ class Database:
 
     def search_continent(self , continent_code: int, name: str) -> Continent:
         """Searches database for continents and generates results as Continent named tuples"""
-        cursor = self._connection.execute("""
-            SELECT continent_id, continent_code, name 
-            FROM continent
-            WHERE continent_code = ? AND name = ? ;
-            """,(continent_code, name) )
-        continent = cursor.fetchone()
-        if continent is not None:
-            return Continent(*continent)
+        if continent_code is None :
+            cursor = self._connection.execute("""
+                SELECT continent_id, continent_code, name 
+                FROM continent
+                WHERE name = ? ;
+                """,(name,))
+        elif name is None:
+            cursor = self._connection.execute("""
+                SELECT continent_id, continent_code, name 
+                FROM continent
+                WHERE continent_code = ? ;
+                """,(continent_code,) )
+        else:
+            cursor = self._connection.execute("""
+                SELECT continent_id, continent_code, name 
+                FROM continent
+                WHERE continent_code = ? AND name = ? ;
+                """,(continent_code, name) )
+
+        continents = cursor.fetchall()
+        if continents is not None:
+            for continent in continents:
+                yield Continent(*continent)
 
 
     def search_continent_by_id(self, continent_id:int) -> Continent:
