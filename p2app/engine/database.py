@@ -23,11 +23,16 @@ class Database:
 
     def check_open(self) -> bool :
         """Checks if the correct database is open and returns true if it is"""
-        cursor = self._connection.execute('SELECT name FROM sqlite_schema;')
-        if cursor.fetchone() == ('continent',) :
-            return True
-        else :
+        try:
+            cursor = self._connection.execute('SELECT name FROM sqlite_schema;')
+            if cursor.fetchone() == ('continent',) :
+                return True
+            else :
+                return False
+        except:
             return False
+
+
 
 
     def search_continent(self , continent_code: int, name: str) -> Continent:
