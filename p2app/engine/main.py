@@ -106,3 +106,12 @@ class Engine:
         if isinstance(event, LoadRegionEvent):
             region = self._database.search_region_by_id(event.region_id())
             yield RegionLoadedEvent(region)
+
+        if isinstance(event, SaveNewRegionEvent):
+            region = event.region()
+            error = self._database.save_new_region(region)
+            if error is None:
+                created_region = next(self._database.search_region(region.region_code, region.local_code,region.name))
+                yield RegionSavedEvent(created_region)
+            else:
+                yield SaveRegionFailedEvent("Save New Region Failed.\n" + error)
