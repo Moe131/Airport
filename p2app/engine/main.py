@@ -46,9 +46,7 @@ class Engine:
             yield DatabaseClosedEvent()
 
         if isinstance(event, StartContinentSearchEvent):
-            continent_code = event.continent_code()
-            name = event.name()
-            searched_continents = self._database.search_continent(continent_code,name)
+            searched_continents = self._database.search_continent(event.continent_code(),event.name())
             if searched_continents is not None:
                 for continent in searched_continents:
                     yield ContinentSearchResultEvent(continent)
@@ -74,9 +72,7 @@ class Engine:
                 yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
 
         if isinstance(event, StartCountrySearchEvent):
-            country_code = event.country_code()
-            name = event.name()
-            searched_countries = self._database.search_country(country_code,name)
+            searched_countries = self._database.search_country(event.country_code(),event.name())
             if searched_countries is not None:
                 for country in searched_countries:
                     yield CountrySearchResultEvent(country)
@@ -100,3 +96,9 @@ class Engine:
                 yield CountrySavedEvent(event.country())
             else:
                 yield SaveCountryFailedEvent("Save Continent Failed.\n"+ error)
+
+        if isinstance(event, StartRegionSearchEvent):
+            searched_regions = self._database.search_region(event.region_code(), event.local_code(), event.name())
+            if searched_regions is not None:
+                for region in searched_regions:
+                    yield RegionSearchResultEvent(region)

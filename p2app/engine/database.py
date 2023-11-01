@@ -1,5 +1,5 @@
 import sqlite3
-from p2app.events import Continent, Country
+from p2app.events import Continent, Country, Region
 
 
 class Database:
@@ -194,3 +194,53 @@ class Database:
                 return "Country Code already exists."
             else:
                 return error
+
+    def search_region(self, region_code:str, local_code:str, name:str):
+        """Searches database for regions and generates results as region named tuples"""
+        if region_code is None and name is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE local_code = ? ;
+            """, (local_code,))
+        elif region_code is None and local_code is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE name = ? ;
+            """, (name,))
+        elif local_code is None and name is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE region_code = ? ;
+                """, (region_code,))
+        elif local_code is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE region_code = ? AND name = ? ;
+                """, (region_code,name))
+        elif region_code is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE local_code = ? AND name = ? ;
+                """, (local_code, name))
+        elif name is None:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE region_code = ? AND local_code = ? ;
+                """, (region_code, local_code))
+        else:
+            cursor = self._connection.execute("""
+                SELECT *
+                FROM region
+                WHERE region_code = ? AND local_code = ? AND name = ? ;
+            """, (region_code,local_code,name))
+
+        regions = cursor.fetchall()
+        if regions is not None:
+            for region in regions:
+                yield Region(*region)
