@@ -91,7 +91,7 @@ class Database:
                 return "Continent Code already exists."
             else :
                 return error
-        #self._connection.commit()
+        self._connection.commit()
 
 
     def update_continent(self, continent: Continent):
@@ -113,6 +113,7 @@ class Database:
                 return "Continent Code already exists."
             else:
                 return error
+        self._connection.commit()
 
 
     def search_country(self, country_code:int, name:str):
@@ -171,6 +172,7 @@ class Database:
                 return "Country Code already exists."
             else:
                 return error
+        self._connection.commit()
 
 
     def update_country(self, country:Country):
@@ -194,6 +196,8 @@ class Database:
                 return "Country Code already exists."
             else:
                 return error
+        self._connection.commit()
+
 
     def search_region(self, region_code:str, local_code:str, name:str):
         """Searches database for regions and generates results as region named tuples"""
@@ -245,6 +249,7 @@ class Database:
             for region in regions:
                 yield Region(*region)
 
+
     def search_region_by_id(self, region_id:int) -> Region:
         """Searches database for a region by its ID and returns it"""
         cursor = self._connection.execute("""
@@ -253,6 +258,7 @@ class Database:
             WHERE region_id = ? ;
             """, (region_id,) )
         return Region(*cursor.fetchone())
+
 
     def save_new_region(self, region:Region ):
         """Inserts a new region into the database and
@@ -281,6 +287,8 @@ class Database:
                 return "Region Code already exists."
             else:
                 return error
+        self._connection.commit()
+
 
     def update_region(self, region: Region):
         """Updates an existing region in the database with new values"""
@@ -308,3 +316,4 @@ class Database:
                 return "Region Code already exists."
             else:
                 return error
+        self._connection.commit()
