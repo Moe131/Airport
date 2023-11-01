@@ -269,12 +269,39 @@ class Database:
             return "Country id can not be empty."
         try :
             cursor = self._connection.execute("""
-                INSERT INTO region (region_id, region_code, local_code,
+                INSERT INTO region (region_code, local_code,
                  name, continent_id, country_id, wikipedia_link, keywords)
-                VALUES (?,?,?,?,?,?,?,?)
-            """, (region.region_id, region.region_code, region.local_code,
+                VALUES (?,?,?,?,?,?,?)
+            """, (region.region_code, region.local_code,
                  region.name, region.continent_id, region.country_id,
                  region.wikipedia_link, region.keywords))
+        except Exception as e:
+            error = e.__str__()
+            if "UNIQUE constraint" in error:
+                return "Region Code already exists."
+            else:
+                return error
+
+    def update_region(self, region: Region):
+        """Updates an existing region in the database with new values"""
+        if region.region_code.isspace() or region.region_code == "":
+            return "Region Code can not be empty."
+        if region.local_code.isspace() or region.local_code == "":
+            return "Local code can not be empty."
+        if region.name.isspace() or region.name == "":
+            return "Name can not be empty."
+        if region.continent_id is None:
+            return "Continent id can not be empty."
+        if region.country_id is None:
+            return "Country id can not be empty."
+        try:
+            cursor = self._connection.execute("""
+                 UPDATE region 
+                 SET region_code = ? , local_code = ?, name = ?, 
+                 continent_id = ?, country_id = ?, wikipedia_link = ?, keywords = ?
+                 WHERE region_id = ? ;
+             """, (region.region_code, region.local_code,region.name, region.continent_id,
+                   region.country_id, region.wikipedia_link, region.keywords, region.region_id))
         except Exception as e:
             error = e.__str__()
             if "UNIQUE constraint" in error:

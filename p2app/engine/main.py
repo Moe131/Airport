@@ -115,3 +115,10 @@ class Engine:
                 yield RegionSavedEvent(created_region)
             else:
                 yield SaveRegionFailedEvent("Save New Region Failed.\n" + error)
+
+        if isinstance(event, SaveRegionEvent):
+            error = self._database.update_region(event.region())
+            if error is None:
+                yield RegionSavedEvent(event.region())
+            else:
+                yield SaveRegionFailedEvent("Save Region Failed.\n"+ error)
