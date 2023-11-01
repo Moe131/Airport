@@ -102,3 +102,7 @@ class Engine:
             if searched_regions is not None:
                 for region in searched_regions:
                     yield RegionSearchResultEvent(region)
+
+        if isinstance(event, LoadRegionEvent):
+            region = self._database.search_region_by_id(event.region_id())
+            yield RegionLoadedEvent(region)

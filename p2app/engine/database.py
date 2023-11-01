@@ -244,3 +244,12 @@ class Database:
         if regions is not None:
             for region in regions:
                 yield Region(*region)
+
+    def search_region_by_id(self, region_id:int) -> Region:
+        """Searches database for a region by its ID and returns it"""
+        cursor = self._connection.execute("""
+            SELECT *
+            FROM region
+            WHERE region_id = ? ;
+            """, (region_id,) )
+        return Region(*cursor.fetchone())
