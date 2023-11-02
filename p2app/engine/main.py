@@ -30,57 +30,38 @@ class Engine:
         try :
             if isinstance(event, QuitInitiatedEvent):
                 yield EndApplicationEvent()
-
             if isinstance(event, OpenDatabaseEvent):
                 yield from self.open_database(event.path())
-
             if isinstance(event, CloseDatabaseEvent):
                 self._database.close()
                 yield DatabaseClosedEvent()
-
             if isinstance(event, StartContinentSearchEvent):
                 yield from self.search_continent(event.continent_code(), event.name())
-
             if isinstance(event, LoadContinentEvent):
                 continent = self._database.search_continent_by_id(event.continent_id())
                 yield ContinentLoadedEvent(continent)
-
             if isinstance(event,SaveNewContinentEvent):
                 yield from self.save_new_continent(event.continent())
-
             if isinstance(event, SaveContinentEvent):
                 yield from self.save_continent(event.continent())
-
             if isinstance(event, StartCountrySearchEvent):
                 yield from self.search_country(event.country_code(), event.name())
-
             if isinstance(event, LoadCountryEvent):
                 country = self._database.search_country_by_id(event.country_id())
                 yield CountryLoadedEvent(country)
-
             if isinstance(event, SaveNewCountryEvent):
                 yield from self.save_new_country(event.country())
-
             if isinstance(event, SaveCountryEvent):
                 yield from self.save_country(event.country())
-
             if isinstance(event, StartRegionSearchEvent):
                 yield from self.search_region(event.region_code(), event.local_code(), event.name())
-
             if isinstance(event, LoadRegionEvent):
                 region = self._database.search_region_by_id(event.region_id())
                 yield RegionLoadedEvent(region)
-
             if isinstance(event, SaveNewRegionEvent):
                 yield from self.save_new_region(event.region())
-
             if isinstance(event, SaveRegionEvent):
-                error = self._database.update_region(event.region())
-                if error is None:
-                    yield RegionSavedEvent(event.region())
-                else:
-                    yield SaveRegionFailedEvent("Save Region Failed.\n"+ error)
-
+                yield from self.save_region(event.region())
         except Exception as e :
             yield ErrorEvent(e.__str__())
 
@@ -116,6 +97,7 @@ class Engine:
         else:
             yield SaveContinentFailedEvent("Save New Continent Failed.\n" + error)
 
+
     def save_continent(self, continent: Continent):
         """ Generator function that updates an existing continent in the database
          and generates events based on the success or failure of the process"""
@@ -124,6 +106,7 @@ class Engine:
             yield ContinentSavedEvent(continent)
         else:
             yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
+
 
     def search_country(self,country_code, name):
         """ Generator function that searches for countries in database
@@ -154,6 +137,7 @@ class Engine:
         else:
             yield SaveCountryFailedEvent("Save Continent Failed.\n" + error)
 
+
     def search_region(self, region_code, local_code, name):
         """ Generator function that searches for regions in database
          and generates events based on the search"""
@@ -161,6 +145,7 @@ class Engine:
         if searched_regions is not None:
             for region in searched_regions:
                 yield RegionSearchResultEvent(region)
+
 
     def save_new_region(self, region:Region):
         """ Generator function that saves a new region in the database
@@ -171,3 +156,13 @@ class Engine:
             yield RegionSavedEvent(created_region)
         else:
             yield SaveRegionFailedEvent("Save New Region Failed.\n" + error)
+
+
+    def save_region(self, region:Region):
+        """ Generator function that updates an existing region in the database
+            and generates events based on the success or failure of the process"""
+        error = self._database.update_region(region)
+        if error is None:
+            yield RegionSavedEvent(region)
+        else:
+            yield SaveRegionFailedEvent("Save Region Failed.\n" + error)
