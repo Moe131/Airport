@@ -15,6 +15,9 @@ class Database:
     def open(self) -> None:
         """Opens the database and starts a connection"""
         self._connection = sqlite3.connect(str(self._path))
+        cursor = self._connection.execute(""" PRAGMA foreign_keys = ON; """)
+        cursor.close()
+
 
 
     def close(self) -> None:
