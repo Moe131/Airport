@@ -52,23 +52,14 @@ class Engine:
                 yield from self.save_continent(event.continent())
 
             if isinstance(event, StartCountrySearchEvent):
-                searched_countries = self._database.search_country(event.country_code(),event.name())
-                if searched_countries is not None:
-                    for country in searched_countries:
-                        yield CountrySearchResultEvent(country)
+                yield from self.search_country(event.country_code(), event.name())
 
             if isinstance(event, LoadCountryEvent):
                 country = self._database.search_country_by_id(event.country_id())
                 yield CountryLoadedEvent(country)
 
             if isinstance(event, SaveNewCountryEvent):
-                country = event.country()
-                error = self._database.save_new_country(country)
-                if error is None:
-                    created_country = next(self._database.search_country(country.country_code, country.name))
-                    yield CountrySavedEvent(created_country)
-                else:
-                    yield SaveCountryFailedEvent("Save New Country Failed.\n" + error)
+                yield from self.save_new_country(event.country())
 
             if isinstance(event, SaveCountryEvent):
                 error = self._database.update_country(event.country())
@@ -146,3 +137,22 @@ class Engine:
             yield ContinentSavedEvent(continent)
         else:
             yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
+
+    def search_country(self,country_code, name):
+        """ Generator function that searches for countries in database
+         and generates events based on the search"""
+        searched_countries = self._database.search_country(country_code, name)
+        if searched_countries is not None:
+            for country in searched_countries:
+                yield CountrySearchResultEvent(country)
+
+
+    def save_new_country(self, country: Country):
+        """ Generator function that saves a new country in the database
+         and generates events based on the success or failure of the process"""
+        error = self._database.save_new_country(country)
+        if error is None:
+            created_country = next(self._database.search_country(country.country_code, country.name))
+            yield CountrySavedEvent(created_country)
+        else:
+            yield SaveCountryFailedEvent("Save New Country Failed.\n" + error)
