@@ -180,6 +180,8 @@ class Database:
             error = e.__str__()
             if "UNIQUE constraint" in error:
                 return "Country Code already exists."
+            elif "FOREIGN KEY constraint" in error:
+                return "Continent ID does not exist."
             else:
                 return error
         cursor.close()
@@ -205,6 +207,8 @@ class Database:
             error = e.__str__()
             if "UNIQUE constraint" in error:
                 return "Country Code already exists."
+            elif "FOREIGN KEY constraint" in error:
+                return "Continent ID does not exist."
             else:
                 return error
         cursor.close()
@@ -300,6 +304,8 @@ class Database:
             error = e.__str__()
             if "UNIQUE constraint" in error:
                 return "Region Code already exists."
+            elif "FOREIGN KEY constraint" in error:
+                return "Continent ID or Country ID does not exist."
             else:
                 return error
         cursor.close()
@@ -330,6 +336,8 @@ class Database:
             error = e.__str__()
             if "UNIQUE constraint" in error:
                 return "Region Code already exists."
+            elif "FOREIGN KEY constraint" in error:
+                return "Continent ID or Country ID does not exist."
             else:
                 return error
         cursor.close()
