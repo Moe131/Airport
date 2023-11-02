@@ -62,17 +62,10 @@ class Engine:
                 yield from self.save_new_country(event.country())
 
             if isinstance(event, SaveCountryEvent):
-                error = self._database.update_country(event.country())
-                if error is None:
-                    yield CountrySavedEvent(event.country())
-                else:
-                    yield SaveCountryFailedEvent("Save Continent Failed.\n"+ error)
+                yield from self.save_country(event.country())
 
             if isinstance(event, StartRegionSearchEvent):
-                searched_regions = self._database.search_region(event.region_code(), event.local_code(), event.name())
-                if searched_regions is not None:
-                    for region in searched_regions:
-                        yield RegionSearchResultEvent(region)
+                yield from self.search_region(event.region_code(), event.local_code(), event.name())
 
             if isinstance(event, LoadRegionEvent):
                 region = self._database.search_region_by_id(event.region_id())
@@ -156,3 +149,21 @@ class Engine:
             yield CountrySavedEvent(created_country)
         else:
             yield SaveCountryFailedEvent("Save New Country Failed.\n" + error)
+
+
+    def save_country(self, country: Country):
+        """ Generator function that updates an existing country in the database
+        and generates events based on the success or failure of the process"""
+        error = self._database.update_country(country)
+        if error is None:
+            yield CountrySavedEvent(country)
+        else:
+            yield SaveCountryFailedEvent("Save Continent Failed.\n" + error)
+
+    def search_region(self, region_code, local_code, name):
+        """ Generator function that searches for regions in database
+         and generates events based on the search"""
+        searched_regions = self._database.search_region(region_code, local_code, name)
+        if searched_regions is not None:
+            for region in searched_regions:
+                yield RegionSearchResultEvent(region)
