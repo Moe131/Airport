@@ -32,12 +32,7 @@ class Engine:
                 yield EndApplicationEvent()
 
             if isinstance(event, OpenDatabaseEvent):
-                self._database = Database(event.path())
-                self._database.open()
-                if self._database.check_database_correctness():
-                    yield DatabaseOpenedEvent(event.path())
-                else:
-                    yield DatabaseOpenFailedEvent("Wrong file was opened. Please try again")
+                yield from self.open_database(event.path())
 
             if isinstance(event, CloseDatabaseEvent):
                 self._database.close()
@@ -123,3 +118,14 @@ class Engine:
 
         except Exception as e :
             yield ErrorEvent(e.__str__())
+
+
+    def open_database(self, path):
+        """ A generator function that opens the database and generates
+         events based on the success of opening the database"""
+        self._database = Database(path)
+        self._database.open()
+        if self._database.check_database_correctness():
+            yield DatabaseOpenedEvent(path)
+        else:
+            yield DatabaseOpenFailedEvent("Wrong file was opened. Please try again")
