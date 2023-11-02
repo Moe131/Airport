@@ -39,10 +39,7 @@ class Engine:
                 yield DatabaseClosedEvent()
 
             if isinstance(event, StartContinentSearchEvent):
-                searched_continents = self._database.search_continent(event.continent_code(),event.name())
-                if searched_continents is not None:
-                    for continent in searched_continents:
-                        yield ContinentSearchResultEvent(continent)
+                yield from self.search_continent(event.continent_code(), event.name())
 
             if isinstance(event, LoadContinentEvent):
                 continent = self._database.search_continent_by_id(event.continent_id())
@@ -129,3 +126,12 @@ class Engine:
             yield DatabaseOpenedEvent(path)
         else:
             yield DatabaseOpenFailedEvent("Wrong file was opened. Please try again")
+
+
+    def search_continent(self, continent_code, name):
+        """ Generator function that searches for continents in database
+         and generates events based on the search"""
+        searched_continents = self._database.search_continent(continent_code, name)
+        if searched_continents is not None:
+            for continent in searched_continents:
+                yield ContinentSearchResultEvent(continent)
