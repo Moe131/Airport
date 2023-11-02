@@ -63,7 +63,7 @@ class Engine:
             if isinstance(event, SaveRegionEvent):
                 yield from self.save_region(event.region())
         except Exception as e :
-            yield ErrorEvent(e.__str__())
+            yield ErrorEvent("An Error Occurred.")
 
 
     def open_database(self, path):
