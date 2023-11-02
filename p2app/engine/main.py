@@ -72,13 +72,7 @@ class Engine:
                 yield RegionLoadedEvent(region)
 
             if isinstance(event, SaveNewRegionEvent):
-                region = event.region()
-                error = self._database.save_new_region(region)
-                if error is None:
-                    created_region = next(self._database.search_region(region.region_code, region.local_code,region.name))
-                    yield RegionSavedEvent(created_region)
-                else:
-                    yield SaveRegionFailedEvent("Save New Region Failed.\n" + error)
+                yield from self.save_new_region(event.region())
 
             if isinstance(event, SaveRegionEvent):
                 error = self._database.update_region(event.region())
@@ -167,3 +161,13 @@ class Engine:
         if searched_regions is not None:
             for region in searched_regions:
                 yield RegionSearchResultEvent(region)
+
+    def save_new_region(self, region:Region):
+        """ Generator function that saves a new region in the database
+        and generates events based on the success or failure of the process"""
+        error = self._database.save_new_region(region)
+        if error is None:
+            created_region = next(self._database.search_region(region.region_code, region.local_code, region.name))
+            yield RegionSavedEvent(created_region)
+        else:
+            yield SaveRegionFailedEvent("Save New Region Failed.\n" + error)
