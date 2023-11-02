@@ -49,11 +49,7 @@ class Engine:
                 yield from self.save_new_continent(event.continent())
 
             if isinstance(event, SaveContinentEvent):
-                error = self._database.update_continent(event.continent())
-                if error is None:
-                    yield ContinentSavedEvent(event.continent())
-                else:
-                    yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
+                yield from self.save_continent(event.continent())
 
             if isinstance(event, StartCountrySearchEvent):
                 searched_countries = self._database.search_country(event.country_code(),event.name())
@@ -130,6 +126,7 @@ class Engine:
             for continent in searched_continents:
                 yield ContinentSearchResultEvent(continent)
 
+
     def save_new_continent(self, continent: Continent):
         """ Generator function that saves a new continent in the database
          and generates events based on the success or failure of the process"""
@@ -140,3 +137,12 @@ class Engine:
             yield ContinentSavedEvent(continent)
         else:
             yield SaveContinentFailedEvent("Save New Continent Failed.\n" + error)
+
+    def save_continent(self, continent: Continent):
+        """ Generator function that updates an existing continent in the database
+         and generates events based on the success or failure of the process"""
+        error = self._database.update_continent(continent)
+        if error is None:
+            yield ContinentSavedEvent(continent)
+        else:
+            yield SaveContinentFailedEvent("Save Continent Failed.\n" + error)
