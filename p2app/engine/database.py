@@ -35,9 +35,7 @@ class Database:
                 return False
         except:
             return False
-
-
-
+        cursor.close()
 
     def search_continent(self , continent_code: int, name: str) -> Continent:
         """Searches database for continents and generates results as Continent named tuples"""
@@ -61,6 +59,7 @@ class Database:
                 """,(continent_code, name) )
 
         continents = cursor.fetchall()
+        cursor.close()
         if continents is not None:
             for continent in continents:
                 yield Continent(*continent)
@@ -73,7 +72,9 @@ class Database:
             FROM continent
             WHERE continent_id = ? ;
             """, (continent_id,) )
-        return Continent(*cursor.fetchone())
+        continent = cursor.fetchone()
+        cursor.close()
+        return Continent(*continent)
 
 
     def save_new_continent(self, continent:Continent) :
@@ -94,6 +95,7 @@ class Database:
                 return "Continent Code already exists."
             else :
                 return error
+        cursor.close()
         self._connection.commit()
 
 
@@ -116,6 +118,7 @@ class Database:
                 return "Continent Code already exists."
             else:
                 return error
+        cursor.close()
         self._connection.commit()
 
 
@@ -141,6 +144,7 @@ class Database:
             """, (country_code,name))
 
         countries = cursor.fetchall()
+        cursor.close()
         if countries is not None:
             for country in countries:
                 yield Country(*country)
@@ -153,7 +157,10 @@ class Database:
             FROM country
             WHERE country_id = ? ;
             """, (country_id,) )
-        return Country(*cursor.fetchone())
+        country = cursor.fetchone()
+        cursor.close()
+        return Country(*country)
+
 
     def save_new_country(self, country:Country ):
         """Inserts a new country into the database and
@@ -175,6 +182,7 @@ class Database:
                 return "Country Code already exists."
             else:
                 return error
+        cursor.close()
         self._connection.commit()
 
 
@@ -199,6 +207,7 @@ class Database:
                 return "Country Code already exists."
             else:
                 return error
+        cursor.close()
         self._connection.commit()
 
 
@@ -248,6 +257,7 @@ class Database:
             """, (region_code,local_code,name))
 
         regions = cursor.fetchall()
+        cursor.close()
         if regions is not None:
             for region in regions:
                 yield Region(*region)
@@ -260,7 +270,9 @@ class Database:
             FROM region
             WHERE region_id = ? ;
             """, (region_id,) )
-        return Region(*cursor.fetchone())
+        region = cursor.fetchone()
+        cursor.close()
+        return Region(*region)
 
 
     def save_new_region(self, region:Region ):
@@ -290,6 +302,7 @@ class Database:
                 return "Region Code already exists."
             else:
                 return error
+        cursor.close()
         self._connection.commit()
 
 
@@ -319,4 +332,5 @@ class Database:
                 return "Region Code already exists."
             else:
                 return error
+        cursor.close()
         self._connection.commit()
