@@ -25,17 +25,18 @@ class Database:
         self._connection.close()
 
 
-    def check_open(self) -> bool :
+    def check_database_correctness(self) -> bool :
         """Checks if the correct database is open and returns true if it is"""
         try:
             cursor = self._connection.execute('SELECT name FROM sqlite_schema;')
-            if cursor.fetchone() == ('continent',) :
+            tables = cursor.fetchall()
+            cursor.close()
+            if ('continent',) in tables and ('country',) in tables and ('region',) in tables :
                 return True
             else :
                 return False
-        except:
+        except Exception:
             return False
-        cursor.close()
 
     def search_continent(self , continent_code: int, name: str) -> Continent:
         """Searches database for continents and generates results as Continent named tuples"""

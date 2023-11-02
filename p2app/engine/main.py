@@ -27,9 +27,6 @@ class Engine:
     def process_event(self, event):
         """A generator function that processes one event sent from the user interface,
         yielding zero or more events in response."""
-        # This is a way to write a generator function that always yields zero values.
-        # You'll want to remove this and replace it with your own code, once you start
-        # writing your engine, but this at least allows the program to run.
         try :
             if isinstance(event, QuitInitiatedEvent):
                 yield EndApplicationEvent()
@@ -37,7 +34,7 @@ class Engine:
             if isinstance(event, OpenDatabaseEvent):
                 self._database = Database(event.path())
                 self._database.open()
-                if self._database.check_open():
+                if self._database.check_database_correctness():
                     yield DatabaseOpenedEvent(event.path())
                 else:
                     yield DatabaseOpenFailedEvent("Wrong file was opened. Please try again")
@@ -123,5 +120,6 @@ class Engine:
                     yield RegionSavedEvent(event.region())
                 else:
                     yield SaveRegionFailedEvent("Save Region Failed.\n"+ error)
+
         except Exception as e :
             yield ErrorEvent(e.__str__())
