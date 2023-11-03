@@ -19,7 +19,6 @@ class Database:
         cursor.close()
 
 
-
     def close(self) -> None:
         """Closes the database connection"""
         self._connection.close()
